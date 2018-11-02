@@ -100,9 +100,9 @@ ui <- fluidPage(theme = "bootstrap.min.css",
                                  wellPanel(
                                    strong("Specify Contrast:"),
                                    p(),
-                                   textInput("cw3.1.1", value="0", label="Condition 1:"),
-                                   textInput("cw3.1.2", value="1", label="Condition 2:"),
-                                   textInput("cw3.1.3", value="-1", label="Condition 3:")
+                                   textInput("cw3s.1.1", value="0", label="Condition 1:"),
+                                   textInput("cw3s.1.2", value="1", label="Condition 2:"),
+                                   textInput("cw3s.1.3", value="-1", label="Condition 3:")
                                  ) #end panel
                           ) # end column
                           ), #end Conditional planel 4 
@@ -111,10 +111,10 @@ ui <- fluidPage(theme = "bootstrap.min.css",
                               wellPanel(
                               strong("Specify Contrast:"),
                               p(),
-                             textInput("cw3.1.1", value= "0", label="Condition 1:"),
-                             textInput("cw3.1.2", value="0", label="Condition 2:"),
-                             textInput("cw3.1.3", value="1", label="Condition 3:"),
-                             textInput("cw3.1.4", value="-1", label="Condition 4:")
+                             textInput("cws.1.1", value= "0", label="Condition 1:"),
+                             textInput("cws.1.2", value="0", label="Condition 2:"),
+                             textInput("cws.1.3", value="1", label="Condition 3:"),
+                             textInput("cws.1.4", value="-1", label="Condition 4:")
                                                   ) #end panel
                                            ) # end column
         ) # end conditional Panel 4
@@ -259,13 +259,13 @@ server <- function(input, output) {
       sumSquaredWeights == max(sumSquaredWeights) -> check
       planWeight = weights[which(check==TRUE)[1],]
     } else if  (ncond == 3 & contrType=="Custom contrast") {
-      weights = c(isolate(input$cw3.1.1), isolate(input$cw3.1.2), isolate(input$cw3.1.3))
+      weights = c(isolate(input$cw3s.1.1), isolate(input$cw3s.1.2), isolate(input$cw3s.1.3))
       weights = sapply(weights, transFraction)
       flag = all.equal(sum(weights), 0)
       if (flag == TRUE) flag = all.equal(sum(abs(weights)), 2)
       planWeight = weights
     } else if (ncond == 4 & contrType=="Custom contrast") {
-      weights = c(isolate(input$cw.3.1), isolate(input$cw.3.2), isolate(input$cw.3.3), isolate(input$cw.3.4))
+      weights = c(isolate(input$cws.1.1), isolate(input$cws.1.2), isolate(input$cws.1.3), isolate(input$cws.1.4))
       weights = sapply(weights, transFraction)
       flag = all.equal(sum(weights), 0)
       if (flag == TRUE) flag = all.equal(sum(abs(weights)), 2)
