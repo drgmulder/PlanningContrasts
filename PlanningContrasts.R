@@ -15,7 +15,7 @@ ui <- fluidPage(theme = "bootstrap.min.css",
   # Application title
    titlePanel("Planning for precise contrast estimates"), 
              p(),
-             span("Author: Gerben Mulder, October, 2018"),
+             span("Author: Gerben Mulder, November 2018"),
              p(),
              span("This application plans sample sizes for precise contrast estimates in one factor designs."),  
              p(),
@@ -33,7 +33,7 @@ ui <- fluidPage(theme = "bootstrap.min.css",
                                         selected="Indepdendent"),
                             conditionalPanel(
                               condition = "input.DesignType == 'Dependent'",
-                              numericInput("cor", "Cross-condition correlation:", value=0, min=0, max=.99, step=.01)
+                              textInput("cor", "Cross-condition correlation:", value="0")
                             ), 
                             conditionalPanel(
                               condition = "input.ncond > 2",
@@ -142,8 +142,14 @@ ui <- fluidPage(theme = "bootstrap.min.css",
 #Expected Margin of Error
 
 calcMOE <- function(n, cor = 0, k = 2, w = c(-1, 1)) {
+  
+  # if dependent design and orthogonal contrasts
+  # error df for each contrasts is 
+  # (k - 1)*(n - 1) / ( k - 1) = (n - 1) 
+  # for independent it is k(n - 1)
+  
   if (cor !=0) {
-    df = (k -1)*(n-1) 
+    df = n - 1 
   } else {
     df = k*(n - 1) 
   } 
@@ -166,11 +172,18 @@ sampleSize <- function(tMoE, assu= .80, cor = 0, k = 2, w = c(-1, 1)) {
   
 
   qMoe = function(n, q = assu, cor = cor, k = k, w = w) {
+    
+    # if dependent design and orthogonal contrasts
+    # error df for each contrasts is 
+    # (k - 1)*(n - 1) / ( k - 1) = (n - 1) 
+    
     if (cor !=0) {
-      df = (k -1)*(n-1) 
+      df = n - 1 
     } else {
       df = k*(n - 1) 
     } 
+    
+    
     ct = qt(.975, df)
     cchi = qchisq(q, df)
     ct*sqrt(sum(w^2)*(1 - cor)/n*(cchi/df)) 
@@ -202,9 +215,16 @@ server <- function(input, output) {
     tMOE <- as.numeric(isolate(input$tMOE))
     assu <- as.numeric(isolate(input$assu))
     ncond <- as.numeric(isolate(input$ncond))
-    cor <- as.numeric(isolate(input$cor))
+    cor <- isolate(input$cor)
+    #to prevent error with decimal input ","
+    
+    cor <- gsub("\\,", ".", cor)
+    cor <- as.numeric(cor)
+    
     contrType <- isolate(input$contrastType)
     design <- isolate(input$DesignType)
+    
+    
     
     
     # insert error checking 
@@ -275,14 +295,14 @@ server <- function(input, output) {
     
     
     if (flag != TRUE) {
-    error <- "An error occured; check that the contrasts weights sum to zero and that the absolute values of the weights sum to two"  
+    error <- "An error occurred; check that the contrasts weights sum to zero and that the absolute values of the weights sum to two"  
     output$ans <- renderPrint(error)
-    output$expResults <- renderPlot(plot(c(1, 1), main="An error occured", 
+    output$expResults <- renderPlot(plot(c(1, 1), main="An error occurred", 
                                          type="n", ylab="error", xlab="error"), height=400, width=600)
     } else if (flagCor == TRUE) {
-    error <- "An error occured: for the dependent design the correlation must be larger than zero"
+    error <- "An error occurred: for the dependent design the correlation must be larger than zero"
     output$ans <- renderPrint(error)
-    output$expResults <- renderPlot(plot(c(1, 1), main="An error occured", 
+    output$expResults <- renderPlot(plot(c(1, 1), main="An error occurred", 
                                          type="n", ylab="error", xlab="error"), height=400, width=600)
     } else {
     result <- sampleSize(tMOE, assu = assu, cor = cor, k = ncond, w = planWeight)
